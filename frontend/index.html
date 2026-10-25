@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InsureClear — AI Insurance Policy Analyzer</title>
+  <meta name="description" content="AI-powered tool that translates complex insurance policy fine print into plain English summaries, risk alerts, and interactive answers.">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <!-- Ambient background glow elements -->
+  <div class="ambient-glow glow-top-left"></div>
+  <div class="ambient-glow glow-top-right"></div>
+  <div class="ambient-glow glow-bottom-center"></div>
+
+  <!-- Header / Navigation -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="m9 12 2 2 4-4"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>Insure<span>Clear</span></h1>
+          <p class="tagline">Policy Fine Print, Simplified</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <div id="backend-status-pill" class="status-pill status-checking" title="Backend API Health">
+          <span class="status-dot"></span>
+          <span id="backend-status-text" class="status-text">Connecting...</span>
+        </div>
+        <button id="reset-btn" class="btn btn-secondary btn-sm hidden" title="Start over with a new policy">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+            <path d="M21 3v5h-5"/>
+            <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+            <path d="M8 16H3v5"/>
+          </svg>
+          New Analysis
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="main-container">
+
+    <!-- HERO & UPLOAD SECTION -->
+    <section id="upload-section" class="upload-section">
+      <div class="hero-content">
+        <div class="hero-badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="m10 15 5-3-5-3v6z"/></svg>
+          Plain-English Insurance Intelligence
+        </div>
+        <h2 class="hero-title">Know exactly what your policy <span class="gradient-text">covers</span> and what it <span class="gradient-alert">hides</span>.</h2>
+        <p class="hero-subtitle">
+          Upload any insurance PDF (digital, scanned, or hybrid). Our AI extracts the text, surfaces hidden exclusions and critical risks, and answers your exact questions in plain English.
+        </p>
+      </div>
+
+      <!-- Upload Card -->
+      <div class="upload-card">
+        <div id="drop-zone" class="drop-zone">
+          <input type="file" id="file-input" accept="application/pdf" class="file-input" aria-label="Upload insurance policy PDF">
+          
+          <div class="drop-zone-content">
+            <div class="drop-icon-wrapper">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="12" y1="18" x2="12" y2="12"/>
+                <line x1="9" y1="15" x2="12" y2="12"/>
+                <line x1="15" y1="15" x2="12" y2="12"/>
+              </svg>
+            </div>
+            <h3 class="drop-title">Drag & drop your policy PDF here</h3>
+            <p class="drop-help">or <span class="browse-link">browse from your computer</span></p>
+            
+            <div class="upload-features">
+              <span class="feat-pill"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Born-Digital & Scanned PDFs</span>
+              <span class="feat-pill"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Hybrid OCR Engine</span>
+              <span class="feat-pill"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Up to 50 MB</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Selected File Bar (Hidden by default) -->
+        <div id="file-details" class="file-details hidden">
+          <div class="file-meta">
+            <div class="file-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+            </div>
+            <div class="file-info-text">
+              <div id="file-name" class="file-name">policy_document.pdf</div>
+              <div id="file-size" class="file-size">1.4 MB</div>
+            </div>
+          </div>
+          <button id="remove-file-btn" class="btn-icon" title="Remove file">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="upload-actions">
+          <button id="analyze-btn" class="btn btn-primary btn-lg" disabled>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/><path d="M22 2 12 12"/></svg>
+            Analyze Policy with AI
+          </button>
+          <button id="demo-sample-btn" class="btn btn-outline btn-lg" title="Load an example health insurance policy to preview the dashboard">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+            Explore Sample Policy
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROCESSING / LOADING STEPPER (Hidden by default) -->
+    <section id="processing-section" class="processing-section hidden">
+      <div class="processing-card">
+        <div class="scanner-visual">
+          <div class="scanner-rings">
+            <div class="ring ring-1"></div>
+            <div class="ring ring-2"></div>
+            <div class="ring ring-3"></div>
+          </div>
+          <div class="scanner-center">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <path d="M9 15h6"/>
+              <path d="M9 11h6"/>
+            </svg>
+          </div>
+        </div>
+
+        <h3 id="processing-title" class="processing-title">Analyzing Your Policy</h3>
+        <p id="processing-subtitle" class="processing-subtitle">Our hybrid engine is inspecting pages and preparing your plain-English breakdown...</p>
+
+        <!-- Progress Bar -->
+        <div class="progress-bar-wrapper">
+          <div id="progress-bar-fill" class="progress-bar-fill" style="width: 20%;"></div>
+        </div>
+
+        <!-- Stepper Checklist -->
+        <div class="stepper-list">
+          <div id="step-1" class="step-item step-active">
+            <span class="step-icon">1</span>
+            <div class="step-text">
+              <span class="step-label">Upload & Document Ingestion</span>
+              <span class="step-desc">Validating PDF structure and file integrity</span>
+            </div>
+          </div>
+          <div id="step-2" class="step-item">
+            <span class="step-icon">2</span>
+            <div class="step-text">
+              <span class="step-label">Hybrid Text & OCR Extraction</span>
+              <span class="step-desc">Classifying digital pages & running OCR on scanned clauses</span>
+            </div>
+          </div>
+          <div id="step-3" class="step-item">
+            <span class="step-icon">3</span>
+            <div class="step-text">
+              <span class="step-label">Gemini AI Policy Analysis</span>
+              <span class="step-desc">Translating exclusions, limits & fine print into plain English</span>
+            </div>
+          </div>
+          <div id="step-4" class="step-item">
+            <span class="step-icon">4</span>
+            <div class="step-text">
+              <span class="step-label">Vector Store & RAG Indexing</span>
+              <span class="step-desc">Chunking sections into ChromaDB for instant Q&A</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ERROR ALERT (Hidden by default) -->
+    <div id="error-banner" class="error-banner hidden" role="alert">
+      <div class="error-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      </div>
+      <div class="error-content">
+        <h4 id="error-title" class="error-heading">Analysis Error</h4>
+        <p id="error-message" class="error-text">Something went wrong while processing your document.</p>
+      </div>
+      <button id="dismiss-error-btn" class="btn-icon" aria-label="Dismiss error">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <!-- RESULTS DASHBOARD (Hidden until analysis is complete) -->
+    <section id="dashboard-section" class="dashboard-section hidden">
+      
+      <!-- Dashboard Meta Header -->
+      <div class="dashboard-header-card">
+        <div class="policy-identity">
+          <div class="policy-badge-row">
+            <span id="policy-type-badge" class="badge badge-purple">Health Insurance</span>
+            <span id="qa-ready-badge" class="badge badge-success">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              RAG Q&A Ready
+            </span>
+          </div>
+          <h2 id="policy-heading" class="policy-heading">Comprehensive Policy Analysis</h2>
+          <div class="document-id-tag">
+            <span class="id-label">Doc ID:</span>
+            <code id="doc-id-text">sample-health-doc</code>
+            <button id="copy-doc-id-btn" class="btn-copy" title="Copy Document ID">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="extraction-stats-grid">
+          <div class="stat-box">
+            <span class="stat-number" id="stat-total-pages">-</span>
+            <span class="stat-label">Total Pages</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-number" id="stat-digital-pages">-</span>
+            <span class="stat-label">Digital Pages</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-number" id="stat-scanned-pages">-</span>
+            <span class="stat-label">Scanned Pages</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-number" id="stat-chunks">-</span>
+            <span class="stat-label">Indexed Chunks</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Critical Risk Alerts Banner -->
+      <div id="risk-alerts-container" class="risk-alerts-wrapper">
+        <div class="risk-alert-header">
+          <div class="risk-title-badge">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            Critical Risk Alerts & Hidden Gotchas
+          </div>
+          <span class="risk-subtitle">Review these clauses before relying on this policy</span>
+        </div>
+        <div id="risk-alerts-list" class="risk-alerts-list">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+      <!-- Dashboard Layout: Left Tabs / Content & Right Q&A Dock -->
+      <div class="dashboard-grid">
+        
+        <!-- Left Column: Detailed Tabs -->
+        <div class="dashboard-main-col">
+          
+          <!-- Tab Navigation -->
+          <nav class="tabs-nav" role="tablist">
+            <button id="tab-summary-btn" class="tab-btn active" role="tab" aria-selected="true" data-tab="tab-summary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+              Plain Summary
+            </button>
+            <button id="tab-coverage-btn" class="tab-btn" role="tab" aria-selected="false" data-tab="tab-coverage">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              Coverage (<span id="coverage-count">0</span>)
+            </button>
+            <button id="tab-exclusions-btn" class="tab-btn" role="tab" aria-selected="false" data-tab="tab-exclusions">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+              Exclusions (<span id="exclusions-count">0</span>)
+            </button>
+            <button id="tab-conditions-btn" class="tab-btn" role="tab" aria-selected="false" data-tab="tab-conditions">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Conditions (<span id="conditions-count">0</span>)
+            </button>
+            <button id="tab-glossary-btn" class="tab-btn" role="tab" aria-selected="false" data-tab="tab-glossary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+              Jargon Glossary
+            </button>
+            <button id="tab-chat-btn" class="tab-btn tab-chat-nav" type="button" title="Open AI Policy Chatbot">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              <span>Ask Policy AI</span>
+            </button>
+          </nav>
+
+          <!-- Tab 1: Executive Summary -->
+          <div id="tab-summary" class="tab-pane active" role="tabpanel">
+            <div class="content-card">
+              <div class="card-heading-row">
+                <h3 class="card-title">Executive Plain-English Summary</h3>
+                <span class="info-badge">Explained in everyday terms</span>
+              </div>
+              <div id="summary-text" class="summary-body">
+                <!-- Populated dynamically -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab 2: Coverage Highlights -->
+          <div id="tab-coverage" class="tab-pane" role="tabpanel">
+            <div class="content-card">
+              <div class="card-heading-row">
+                <h3 class="card-title">What This Policy Covers</h3>
+                <span class="info-badge">Key benefits & limits</span>
+              </div>
+              <div id="coverage-list" class="coverage-grid">
+                <!-- Populated dynamically -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab 3: Exclusions & Limitations -->
+          <div id="tab-exclusions" class="tab-pane" role="tabpanel">
+            <div class="content-card">
+              <div class="card-heading-row">
+                <div>
+                  <h3 class="card-title">What Is NOT Covered (Exclusions)</h3>
+                  <p class="card-desc">The fine print most customers miss until a claim is denied.</p>
+                </div>
+                <!-- Severity Filter Pills -->
+                <div class="filter-pills">
+                  <button class="pill-btn active" data-filter="all">All</button>
+                  <button class="pill-btn pill-high" data-filter="high">High Risk</button>
+                  <button class="pill-btn pill-medium" data-filter="medium">Medium</button>
+                  <button class="pill-btn pill-low" data-filter="low">Low</button>
+                </div>
+              </div>
+              <div id="exclusions-list" class="exclusions-grid">
+                <!-- Populated dynamically -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab 4: Key Conditions -->
+          <div id="tab-conditions" class="tab-pane" role="tabpanel">
+            <div class="content-card">
+              <div class="card-heading-row">
+                <h3 class="card-title">Key Terms, Waiting Periods & Deductibles</h3>
+                <span class="info-badge">Practical obligations</span>
+              </div>
+              <div id="conditions-list" class="conditions-grid">
+                <!-- Populated dynamically -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab 5: Jargon Glossary -->
+          <div id="tab-glossary" class="tab-pane" role="tabpanel">
+            <div class="content-card">
+              <div class="card-heading-row">
+                <h3 class="card-title">Insurance Jargon Translator</h3>
+                <span class="info-badge">Legal terms decoded</span>
+              </div>
+              <div id="glossary-list" class="glossary-grid">
+                <!-- Populated dynamically -->
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Floating Chatbot Backdrop (for half-screen hover modal) -->
+    <div id="chat-backdrop" class="chat-backdrop hidden"></div>
+
+    <!-- Floating Half-Screen Chatbot Drawer -->
+    <aside id="chat-drawer" class="chat-drawer chat-drawer-closed" aria-label="Policy AI Chatbot Panel">
+      <div class="chat-panel">
+        <div class="chat-header">
+          <div class="chat-title-group">
+            <div class="chat-avatar">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </div>
+            <div>
+              <h3 class="chat-title">Ask Your Policy AI</h3>
+              <p class="chat-subtitle">Grounded in actual clauses with citations</p>
+            </div>
+          </div>
+          <div class="chat-header-actions">
+            <button id="chat-expand-btn" class="btn-icon" type="button" title="Toggle Half / Wide Screen View" aria-label="Toggle Width">
+              <svg id="expand-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+            </button>
+            <button id="chat-close-btn" class="btn-icon chat-close-btn" type="button" title="Close Chatbot (Esc)" aria-label="Close Chat">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Pre-populated Quick Question Chips -->
+        <div class="quick-questions-wrapper">
+          <span class="quick-title">Suggested Questions:</span>
+          <div id="quick-prompts-container" class="quick-chips-row">
+            <button class="quick-chip" data-q="What is the waiting period for pre-existing medical conditions?">Pre-existing waiting periods?</button>
+            <button class="quick-chip" data-q="What is the deductible or co-payment required on claims?">Deductible & co-pay?</button>
+            <button class="quick-chip" data-q="Am I covered for emergency hospitalization abroad?">Hospitalization abroad?</button>
+            <button class="quick-chip" data-q="What is the exact process and deadline to file a claim?">Claim filing deadline?</button>
+          </div>
+        </div>
+
+        <!-- Chat Messages Log -->
+        <div id="chat-messages" class="chat-messages">
+          <div class="message msg-assistant">
+            <div class="msg-bubble">
+              <p>Hello! I have indexed this policy's full text. Ask me any question in plain English (e.g. <em>"Will my claim be approved if I visit a non-network hospital?"</em>) and I will provide a clear answer with exact page citations.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chat Input Form -->
+        <form id="chat-form" class="chat-form">
+          <div class="chat-input-wrapper">
+            <textarea id="chat-input" class="chat-input" rows="1" placeholder="Ask a question about this policy..." aria-label="Ask a question"></textarea>
+            <button type="submit" id="chat-send-btn" class="chat-send-btn" aria-label="Send question">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+          </div>
+          <div class="chat-hint">Press <kbd>Enter</kbd> to ask &bull; Answers are grounded in your policy vector store</div>
+        </form>
+      </div>
+    </aside>
+
+    <!-- Floating Chatbot Logo Action Button (FAB) -->
+    <div id="chat-fab-container" class="chat-fab-container hidden">
+      <button id="chat-fab-btn" class="chat-fab-btn" type="button" aria-label="Open AI Assistant" title="Open AI Policy Chatbot">
+        <div class="chat-fab-icon-box">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            <path d="M8 10h.01M12 10h.01M16 10h.01"/>
+          </svg>
+          <span class="chat-fab-pulse-ring"></span>
+        </div>
+        <div class="chat-fab-text">
+          <span class="chat-fab-title">Ask Policy AI</span>
+          <span class="chat-fab-status">
+            <span class="status-pulse-dot"></span>
+            Ready
+          </span>
+        </div>
+      </button>
+    </div>
+  </section>
+
+  </main>
+
+  <!-- Toast Notification Container -->
+  <div id="toast" class="toast hidden" role="status">
+    <span id="toast-message">Copied to clipboard</span>
+  </div>
+
+  <!-- JavaScript -->
+  <script src="/js/app.js"></script>
+</body>
+</html>
